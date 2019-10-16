@@ -65,7 +65,7 @@ const Login = require('./login.js').login;
     personRouter.get('/getAllRegisteredPerson',(req,res)=>{
         getRoleOfUser(req.body.user).then(role=>{
             console.log("role name ** ",role.name);
-            if(JSON.stringify(role.name) === 'AccessUser'){
+            if((role.name).trim() === "AccessUser"){
                 res.send("Not accessible to AccessUser");
             }
         }).catch(err=>console.log(err.message));
@@ -106,7 +106,7 @@ const Login = require('./login.js').login;
             getRoleOfUser(req.body.user).then(role=>{
                 console.log("role name ** ",role.name);
                 let name = JSON.stringify(role.name);
-                if(name === 'Administrator'){
+                if(name === "Administrator"){
                     person.set({
                         isAuthorized : true,
                         personUUID : person.firsName+""+person.age+""+person.gender+""+person.mobileNo
@@ -129,15 +129,18 @@ const Login = require('./login.js').login;
 
 
 
-   //person details authorized by Administrator
-   personRouter.put('/authenticatePerson/:id',(req,res)=>{
-    Person.findById(req.params.id).then(person => {console.log(person);
-        res.send(person);
+   //detals of person which are in queue of administrator to approve
+   personRouter.put('/authenticatePerson',(req,res)=>{
+    Person.find({isAuthorized:false}).then(person => {
+        person.forEach((obj)=>{
+            obj.isAuthorized = true;
+            obj.save();
+            console.log(obj);
+        })
+        
+        res.send("authenticated");
      }).catch(err =>console.log(err));
 
-     
-
-     //not completed
    });
 
 
